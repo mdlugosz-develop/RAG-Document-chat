@@ -1,18 +1,19 @@
 from app.config import OPEN_AI_API_KEY
-from app.chunking import chunk_text
 import chromadb
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 from app.interface import create_interface
 from langchain_chroma import Chroma
+
 
 file_path = "/Users/mati/Desktop/TakingItSerious/RAG-Document-chat/app/sample.txt"
 
 embeddings = OpenAIEmbeddings(openai_api_key=OPEN_AI_API_KEY)
 
+
 def main():
+
     client = chromadb.PersistentClient('/Users/mati/Desktop/TakingItSerious/RAG-Document-chat/app/db')
-    collection = client.get_or_create_collection('documents')
-    
+
     vector_store_from_client = Chroma(
         client=client,
         collection_name='documents',

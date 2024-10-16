@@ -1,8 +1,7 @@
-from langchain import hub
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.llms import OpenAI
+from langchain_community.llms import OpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 from app.config import OPEN_AI_API_KEY
 
 def answer_question(question, retriever):
@@ -21,11 +20,11 @@ def answer_question(question, retriever):
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", system_prompt),
-            ("human", "{input}"),
+            ("human", "{question}"),
         ]
     )
 
-    question_answer_chain = create_stuff_documents_chain(llm,prompt)
-    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
-    result = rag_chain.invoke({"input" : question})
-    return result["answer"]
+    chain = {"context" : retriever, "question" : RunnablePassthrough() } | prompt | llm | StrOutputParser()
+
+    return chain.invoke(question)
+    
